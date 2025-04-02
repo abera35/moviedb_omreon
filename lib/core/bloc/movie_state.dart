@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:moviedb_omreon/models/movie_model_detail.dart';
 import '../../models/movie_model.dart';
 
 abstract class MovieState extends Equatable {
@@ -16,6 +17,14 @@ class MovieLoaded extends MovieState {
 
   @override
   List<Object> get props => [movies];
+}
+
+class MovieDetailLoaded extends MovieState {
+  final MovieDetail movie;
+  MovieDetailLoaded(this.movie);
+
+  @override
+  List<Object> get props => [movie]; 
 }
 
 class MovieError extends MovieState {

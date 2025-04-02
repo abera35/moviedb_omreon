@@ -8,6 +8,7 @@ class MovieBloc extends Bloc<MovieEvent, MovieState> {
 
   MovieBloc(this._movieService) : super(MovieInitial()) {
     on<FetchPopularMovies>(_onFetchPopularMovies);
+    on<FetchMovieDetail>(_onFetchMovieDetail);
   }
 
   Future<void> _onFetchPopularMovies(FetchPopularMovies event, Emitter<MovieState> emit) async {
@@ -17,6 +18,16 @@ class MovieBloc extends Bloc<MovieEvent, MovieState> {
       emit(MovieLoaded(movies));
     } catch (e) {
       emit(MovieError('Error - While loading the movies: $e'));
+    }
+  }
+
+  Future<void> _onFetchMovieDetail(FetchMovieDetail event, Emitter<MovieState> emit) async {
+    emit(MovieLoading());
+    try {
+      final movie = await _movieService.fetchMovieDetail(event.movieId);
+      emit(MovieDetailLoaded(movie));
+    } catch (e) {
+      emit(MovieError('Failed to load movie details:  $e'));
     }
   }
 }
