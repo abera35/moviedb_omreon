@@ -34,3 +34,11 @@ class MovieError extends MovieState {
   @override
   List<Object> get props => [message];
 }
+
+class MovieSearchLoaded extends MovieState {
+  final List<Movie> movies;
+  MovieSearchLoaded(this.movies);
+
+  @override
+  List<Object> get props => [movies];
+}

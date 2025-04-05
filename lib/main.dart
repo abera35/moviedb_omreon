@@ -34,30 +34,36 @@ class MyApp extends StatelessWidget {
         title: 'MovieDB Omreon',
         theme: ThemeData.dark(),
         routerConfig: _router,
-        debugShowCheckedModeBanner: false
+        debugShowCheckedModeBanner: false,
       ),
     );
   }
 }
 
 final GoRouter _router = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/home',
   routes: [
-    GoRoute(path: '/', builder: (context, state) => MainScreen()),
-    GoRoute(path: '/search', builder: (context, state) => SearchPage()),
-    GoRoute(path: '/favorites', builder: (context, state) => FavoritesPage()),
-    GoRoute(path: '/detail/:id', builder: (context, state) {
-      final movieId = state.pathParameters['id'];
-      // if (movieId == null) {
-      //   return ErrorPage();
-      // }
-      return MovieDetailPage(movieId: movieId ?? '');
-    },)
+    ShellRoute(
+      builder: (context, state, child) => MainScreen(child: child),
+      routes: [
+        GoRoute(path: '/home', builder: (context, state) => const HomePage()),
+        GoRoute(path: '/search', builder: (context, state) => const SearchPage()),
+        GoRoute(path: '/favorites', builder: (context, state) => const FavoritesPage()),
+      ],
+    ),
+    GoRoute(
+      path: '/detail/:id',
+      builder: (context, state) {
+        final movieId = state.pathParameters['id'];
+        return MovieDetailPage(movieId: movieId ?? '');
+      },
+    ),
   ],
 );
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final Widget child;
+  const MainScreen({super.key, required this.child});
 
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -65,7 +71,8 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
-  final List<String> _routes = ['/', '/search', '/favorites'];
+
+  final List<String> _routes = ['/home', '/search', '/favorites'];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -77,7 +84,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _selectedIndex, children: [HomePage(), SearchPage(), FavoritesPage()]),
+      body: widget.child, // Değişiklik burada
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,

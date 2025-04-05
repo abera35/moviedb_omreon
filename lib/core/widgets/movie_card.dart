@@ -10,7 +10,7 @@ class MovieCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         context.push('/detail/${movie.id}');
       },
       child: Padding(
@@ -46,14 +46,32 @@ class _MovieImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: _VariablesForCard._normalBorderRadiusCircular,
-      child: Image.network(
-        '${_VariablesForCard._imageBaseLink}${movie.posterPath}',
-        width: double.infinity,
-        height: _VariablesForCard._cardHeight,
-        fit: BoxFit.cover,
-      ),
+      child:
+          movie.posterPath != null
+              ? Image.network(
+                '${_VariablesForCard._imageBaseLink}${movie.posterPath}',
+                width: double.infinity,
+                height: _VariablesForCard._cardHeight,
+                fit: BoxFit.cover,
+              )
+              : NotFoundImage(name:ImageItems().imageNotFound),
+                
     );
   }
+}
+
+class ImageItems {
+  final String imageNotFound = 'image_not_found';
+}
+
+class NotFoundImage extends StatelessWidget {
+  final String name;
+  const NotFoundImage({super.key, required this.name});
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(_nameWithPath, fit: BoxFit.cover, height: _VariablesForCard._cardHeight, width: double.infinity);
+  }
+  String get _nameWithPath => 'assets/images/png/$name.png';
 }
 
 class _GradientOverlay extends StatelessWidget {

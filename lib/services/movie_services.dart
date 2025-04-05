@@ -27,4 +27,14 @@ class MovieService {
       throw Exception('Failed to load movie details');
     }
   }
+
+  Future<List<Movie>> searchMovies(String query) async {
+    try {
+      final response = await _client.client.get('/search/movie', queryParameters: {'query': query});
+      final List results = response.data['results'];
+      return results.map((e) => Movie.fromJson(e)).toList();
+    } catch (e) {
+      throw Exception('Error - Could not search movies: $e');
+    }
+  }
 }
