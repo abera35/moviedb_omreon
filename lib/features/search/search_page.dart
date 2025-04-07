@@ -17,6 +17,18 @@ class _SearchPageState extends State<SearchPage> {
   final TextEditingController _controller = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    final bloc = context.read<MovieBloc>();
+
+    if (bloc.lastQuery.isNotEmpty && bloc.lastSearchedMovies.isNotEmpty) {
+      _controller.text = bloc.lastQuery;
+
+      bloc.add(SearchMovies(bloc.lastQuery));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Search')),
@@ -37,15 +49,21 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ),
           Expanded(
-            child: BlocBuilder<MovieBloc, MovieState>(
-              builder: (context, state) {
+            child: Builder(
+              builder: (context) {
+                final bloc = context.read<MovieBloc>();
+                final state = context.watch<MovieBloc>().state;
+
+                final movies =
+                    (state is MovieLoaded && state.movies.isNotEmpty) ? state.movies : bloc.lastSearchedMovies;
+
                 if (state is MovieLoading) {
                   return const Center(child: CircularProgressIndicator());
-                } else if (state is MovieLoaded) {
-                  return state.movies.isNotEmpty ? ListView.builder(
-                    itemCount: state.movies.length,
+                } else if (movies.isNotEmpty) {
+                  return ListView.builder(
+                    itemCount: movies.length,
                     itemBuilder: (context, index) {
-                      final movie = state.movies[index];
+                      final movie = movies[index];
                       return GestureDetector(
                         onTap: () => context.push('/detail/${movie.id}'),
                         child: Card(
@@ -70,13 +88,14 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                           ),
                         ),
-                      ) ;
+                      );
                     },
-                  ) : Center(child: Text('Movies not found'),);
+                  );
                 } else if (state is MovieError) {
                   return Center(child: Text(state.message));
+                } else {
+                  return const Center(child: Text('Movies not found'));
                 }
-                return Container();
               },
             ),
           ),

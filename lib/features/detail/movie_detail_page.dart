@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moviedb_omreon/core/bloc/movie_bloc.dart';
 import 'package:moviedb_omreon/core/bloc/movie_event.dart';
 import 'package:moviedb_omreon/core/bloc/movie_state.dart';
+import 'package:moviedb_omreon/core/favorites/favorite_cubit.dart';
+import 'package:moviedb_omreon/models/movie_model.dart';
 import 'package:moviedb_omreon/models/movie_model_detail.dart';
 
 class MovieDetailPage extends StatelessWidget {
@@ -56,12 +58,30 @@ class MovieDetailPage extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(movie.overview, style: const TextStyle(fontSize: 16)),
                 const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // reserved for favorite
+
+                BlocBuilder<FavoriteCubit, List<Movie>>(
+                  builder: (context, favorites) {
+                    final movieToFavorite = Movie(
+                      id: movie.id,
+                      title: movie.title,
+                      posterPath: movie.posterPath,
+                      overview: movie.overview,
+                      vote_average: movie.voteAverage,
+                    );
+
+                    final isFav = context.read<FavoriteCubit>().isFavorite(movie.id);
+
+                    return ElevatedButton.icon(
+                      onPressed: () {
+                        context.read<FavoriteCubit>().toggleFavorite(movieToFavorite);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(isFav ? '${movie.title} removed from Favorites' : '${movie.title} added to Favorites' , )),
+                        );
+                      },
+                      icon: Icon(isFav ? Icons.favorite : Icons.favorite_border),
+                      label: Text(isFav ? "Remove from Favorites" : "Add to Favorites"),
+                    );
                   },
-                  icon: const Icon(Icons.favorite_border),
-                  label: const Text("Add to Favorites"),
                 ),
               ],
             ),

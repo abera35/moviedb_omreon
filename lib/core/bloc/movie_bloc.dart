@@ -1,12 +1,15 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:moviedb_omreon/services/movie_services.dart';
+import 'package:moviedb_omreon/models/movie_model.dart';
+import 'package:moviedb_omreon/services/movie_service.dart';
 import 'package:rxdart/rxdart.dart';
 import 'movie_event.dart';
 import 'movie_state.dart';
 
 class MovieBloc extends Bloc<MovieEvent, MovieState> {
   final MovieService _movieService;
-  
+  List<Movie> _lastSearchedMovies = [];
+  String _lastQuery = '';
+
   MovieBloc(this._movieService) : super(MovieInitial()) {
     on<FetchPopularMovies>(_onFetchPopularMovies);
     on<FetchMovieDetail>(_onFetchMovieDetail);
@@ -34,10 +37,20 @@ class MovieBloc extends Bloc<MovieEvent, MovieState> {
   }
 
   Future<void> _onSearchMovies(SearchMovies event, Emitter<MovieState> emit) async {
-    if (event.query.isEmpty) return;
+    final query = event.query.trim();
+    if (query.isEmpty) return;
+
+    // Aynı sorguyu tekrar etme
+    if (query == _lastQuery && _lastSearchedMovies.isNotEmpty) {
+      emit(MovieLoaded(_lastSearchedMovies));
+      return;
+    }
+
     emit(MovieLoading());
     try {
-      final movies = await _movieService.searchMovies(event.query);
+      final movies = await _movieService.searchMovies(query);
+      _lastQuery = query;
+      _lastSearchedMovies = movies;
       emit(MovieLoaded(movies));
     } catch (e) {
       emit(MovieError('Search failed: $e'));
@@ -47,4 +60,8 @@ class MovieBloc extends Bloc<MovieEvent, MovieState> {
   EventTransformer<T> debounce<T>(Duration duration) {
     return (events, mapper) => events.debounceTime(duration).switchMap(mapper);
   }
+
+  // Getter'lar
+  List<Movie> get lastSearchedMovies => _lastSearchedMovies;
+  String get lastQuery => _lastQuery;
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moviedb_omreon/core/bloc/movie_event.dart';
-import 'package:moviedb_omreon/services/movie_services.dart';
+import 'package:moviedb_omreon/services/movie_service.dart';
 import '../../core/bloc/movie_bloc.dart';
 import '../../core/bloc/movie_state.dart';
 import '../../core/widgets/movie_card.dart';
