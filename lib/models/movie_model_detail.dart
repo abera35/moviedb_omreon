@@ -1,8 +1,15 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'movie_model_detail.g.dart';
+
+@JsonSerializable()
 class MovieDetail {
   final int id;
   final String title;
   final String overview;
+  @JsonKey(name: 'poster_path')
   final String posterPath;
+  @JsonKey(name: 'vote_average')
   final double voteAverage;
   final List<Genre> genres;
 
@@ -15,25 +22,17 @@ class MovieDetail {
     required this.genres,
   });
 
-  factory MovieDetail.fromJson(Map<String, dynamic> json) {
-    return MovieDetail(
-      id: json['id'],
-      title: json['title'],
-      overview: json['overview'],
-      posterPath: json['poster_path'] ?? '',
-      voteAverage: (json['vote_average'] as num).toDouble(),
-      genres: (json['genres'] as List).map((g) => Genre.fromJson(g)).toList(),
-    );
-  }
+  factory MovieDetail.fromJson(Map<String, dynamic> json) => _$MovieDetailFromJson(json);
+  Map<String, dynamic> toJson() => _$MovieDetailToJson(this);
 }
 
+@JsonSerializable()
 class Genre {
   final int id;
   final String name;
 
   Genre({required this.id, required this.name});
 
-  factory Genre.fromJson(Map<String, dynamic> json) {
-    return Genre(id: json['id'], name: json['name']);
-  }
+  factory Genre.fromJson(Map<String, dynamic> json) => _$GenreFromJson(json);
+  Map<String, dynamic> toJson() => _$GenreToJson(this);
 }

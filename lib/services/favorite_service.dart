@@ -4,17 +4,27 @@ import 'package:moviedb_omreon/models/movie_model.dart';
 
 class FavoriteService {
   static const String _key = 'favorites';
+  SharedPreferences? _prefs;
+
+  Future<SharedPreferences> get _instance async {
+    _prefs ??= await SharedPreferences.getInstance();
+    return _prefs!;
+  }
 
   Future<void> saveFavorites(List<Movie> movies) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance;
     final movieList = movies.map((movie) => jsonEncode(movie.toJson())).toList();
     await prefs.setStringList(_key, movieList);
   }
 
   Future<List<Movie>> loadFavorites() async {
-    final prefs = await SharedPreferences.getInstance();
-    final movieList = prefs.getStringList(_key) ?? [];
-    return movieList.map((str) => Movie.fromJson(jsonDecode(str))).toList();
+    try {
+      final prefs = await _instance;
+      final movieList = prefs.getStringList(_key) ?? [];
+      return movieList.map((str) => Movie.fromJson(jsonDecode(str))).toList();
+    } catch (e) {
+      return [];
+    }
   }
 
   Future<void> addFavorite(Movie movie) async {

@@ -40,7 +40,6 @@ class MovieBloc extends Bloc<MovieEvent, MovieState> {
     final query = event.query.trim();
     if (query.isEmpty) return;
 
-    // Aynı sorguyu tekrar etme
     if (query == _lastQuery && _lastSearchedMovies.isNotEmpty) {
       emit(MovieLoaded(_lastSearchedMovies));
       return;
@@ -61,7 +60,6 @@ class MovieBloc extends Bloc<MovieEvent, MovieState> {
     return (events, mapper) => events.debounceTime(duration).switchMap(mapper);
   }
 
-  // Getter'lar
   List<Movie> get lastSearchedMovies => _lastSearchedMovies;
   String get lastQuery => _lastQuery;
 }

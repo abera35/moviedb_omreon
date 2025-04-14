@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:moviedb_omreon/core/bloc/movie_bloc.dart';
 import 'package:moviedb_omreon/core/bloc/movie_event.dart';
 import 'package:moviedb_omreon/core/bloc/movie_state.dart';
+import 'package:moviedb_omreon/core/widgets/error_widget.dart';
+import 'package:moviedb_omreon/core/widgets/loading_widget.dart';
 import 'package:moviedb_omreon/models/movie_model.dart';
 
 class SearchPage extends StatefulWidget {
@@ -29,6 +31,13 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Search')),
@@ -49,16 +58,14 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ),
           Expanded(
-            child: Builder(
-              builder: (context) {
+            child: BlocBuilder<MovieBloc, MovieState>(
+              builder: (context, state) {
                 final bloc = context.read<MovieBloc>();
-                final state = context.watch<MovieBloc>().state;
-
                 final movies =
                     (state is MovieLoaded && state.movies.isNotEmpty) ? state.movies : bloc.lastSearchedMovies;
 
                 if (state is MovieLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const CustomLoadingWidget();
                 } else if (movies.isNotEmpty) {
                   return ListView.builder(
                     itemCount: movies.length,
@@ -72,7 +79,7 @@ class _SearchPageState extends State<SearchPage> {
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
                               children: [
-                                ClipRRect(borderRadius: BorderRadius.circular(8), child: _PosterWithNullCheck(movie)),
+                                ClipRRect(borderRadius: BorderRadius.circular(8), child: _posterWithNullCheck(movie)),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
@@ -92,7 +99,7 @@ class _SearchPageState extends State<SearchPage> {
                     },
                   );
                 } else if (state is MovieError) {
-                  return Center(child: Text(state.message));
+                  return CustomErrorWidget(message: state.message);
                 } else {
                   return const Center(child: Text('Movies not found'));
                 }
@@ -104,7 +111,7 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Image _PosterWithNullCheck(Movie movie) {
+  Image _posterWithNullCheck(Movie movie) {
     return Image.network(
       'https://image.tmdb.org/t/p/w92${movie.posterPath}',
       width: 92,
@@ -125,7 +132,7 @@ class _TitleAndOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return isTitle == true
+    return isTitle
         ? Text(
           movie.title,
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),

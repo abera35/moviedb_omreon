@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:moviedb_omreon/core/constants/ui_constants.dart';
 import '../../models/movie_model.dart';
 
 class MovieCard extends StatelessWidget {
@@ -14,10 +15,10 @@ class MovieCard extends StatelessWidget {
         context.push('/detail/${movie.id}');
       },
       child: Padding(
-        padding: _VariablesForCard._paddingCardSymmetric,
+        padding: UIConstants.paddingCardSymmetric,
         child: Card(
           elevation: 5,
-          shape: RoundedRectangleBorder(borderRadius: _VariablesForCard._normalBorderRadiusCircular),
+          shape: RoundedRectangleBorder(borderRadius: UIConstants.normalBorderRadiusCircular),
           child: Stack(
             children: [
               _MovieImage(movie: movie),
@@ -31,13 +32,6 @@ class MovieCard extends StatelessWidget {
   }
 }
 
-class _VariablesForCard {
-  static const double _cardHeight = 250;
-  static final BorderRadius _normalBorderRadiusCircular = BorderRadius.circular(12);
-  static const String _imageBaseLink = 'https://image.tmdb.org/t/p/w500';
-  static const EdgeInsets _paddingCardSymmetric = EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0);
-}
-
 class _MovieImage extends StatelessWidget {
   final Movie movie;
   const _MovieImage({required this.movie});
@@ -45,42 +39,56 @@ class _MovieImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: _VariablesForCard._normalBorderRadiusCircular,
+      borderRadius: UIConstants.normalBorderRadiusCircular,
       child:
           movie.posterPath != null
               ? Image.network(
-                '${_VariablesForCard._imageBaseLink}${movie.posterPath}',
+                '${UIConstants.imageBaseLink}${movie.posterPath}',
                 width: double.infinity,
-                height: _VariablesForCard._cardHeight,
+                height: UIConstants.cardHeight,
                 fit: BoxFit.cover,
               )
-              : NotFoundImage(name:ImageItems().imageNotFound),
-                
+              : NotFoundImage(),
     );
   }
 }
 
-class ImageItems {
-  final String imageNotFound = 'image_not_found';
-}
+// class ImageItems {
+//   final String imageNotFound = 'image_not_found';
+// }
+
+// class NotFoundImage extends StatelessWidget {
+//   final String name;
+//   const NotFoundImage({super.key, required this.name});
+//   @override
+//   Widget build(BuildContext context) {
+//     return Image.asset(_nameWithPath, fit: BoxFit.cover, height: UIConstants.cardHeight, width: double.infinity);
+//   }
+
+//   String get _nameWithPath => 'assets/images/png/$name.png';
+// }
 
 class NotFoundImage extends StatelessWidget {
-  final String name;
-  const NotFoundImage({super.key, required this.name});
+  const NotFoundImage({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Image.asset(_nameWithPath, fit: BoxFit.cover, height: _VariablesForCard._cardHeight, width: double.infinity);
+    return Image.asset(
+      'assets/images/png/image_not_found.png',
+      fit: BoxFit.cover,
+      height: UIConstants.cardHeight,
+      width: double.infinity,
+    );
   }
-  String get _nameWithPath => 'assets/images/png/$name.png';
 }
 
 class _GradientOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: _VariablesForCard._cardHeight,
+      height: UIConstants.cardHeight,
       decoration: BoxDecoration(
-        borderRadius: _VariablesForCard._normalBorderRadiusCircular,
+        borderRadius: UIConstants.normalBorderRadiusCircular,
         gradient: LinearGradient(
           begin: Alignment.bottomCenter,
           end: Alignment.topCenter,
@@ -114,13 +122,24 @@ class _MovieInfo extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 4),
-        Row(
-          children: [
-            const Icon(Icons.star, color: Colors.yellow, size: 18),
-            const SizedBox(width: 4),
-            Text(movie.vote_average.toStringAsFixed(1), style: const TextStyle(color: Colors.white)),
-          ],
-        ),
+        RatingRow(rating: movie.vote_average),
+      ],
+    );
+  }
+}
+
+class RatingRow extends StatelessWidget {
+  final double rating;
+
+  const RatingRow({super.key, required this.rating});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Icon(Icons.star, color: Colors.yellow, size: 18),
+        const SizedBox(width: 4),
+        Text(rating.toStringAsFixed(1), style: const TextStyle(color: Colors.white)),
       ],
     );
   }

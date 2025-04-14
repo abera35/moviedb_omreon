@@ -15,6 +15,7 @@ import 'package:moviedb_omreon/core/network/dio_client.dart';
 import 'package:moviedb_omreon/core/bloc/movie_bloc.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
@@ -69,10 +70,10 @@ class MainScreen extends StatefulWidget {
   const MainScreen({super.key, required this.child});
 
   @override
-  _MainScreenState createState() => _MainScreenState();
+  MainScreenState createState() => MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   final List<String> _routes = ['/home', '/search', '/favorites'];
@@ -85,9 +86,23 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final location = GoRouterState.of(context).uri.toString();
+    final index = _routes.indexWhere((r) => location.startsWith(r));
+
+    if (index != -1 && index != _selectedIndex) {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: widget.child, // Değişiklik burada
+      body: widget.child, 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,

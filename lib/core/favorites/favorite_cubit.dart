@@ -9,22 +9,27 @@ class FavoriteCubit extends Cubit<List<Movie>> {
     loadFavorites();
   }
 
-  void loadFavorites() async {
+  Future<void> loadFavorites() async {
     final favorites = await _service.loadFavorites();
     emit(favorites);
   }
 
-  void toggleFavorite(Movie movie) async {
-    final isFav = state.any((m) => m.id == movie.id);
-    if (isFav) {
-      await _service.removeFavorite(movie.id);
-    } else {
-      await _service.addFavorite(movie);
-    }
-    loadFavorites();
+  void toggleFavorite(Movie movie) {
+    final isFav = isFavorite(movie.id);
+    isFav ? removeFavorite(movie.id) : addFavorite(movie);
   }
 
   bool isFavorite(int movieId) {
     return state.any((m) => m.id == movieId);
+  }
+
+  Future<void> addFavorite(Movie movie) async {
+    await _service.addFavorite(movie);
+    loadFavorites();
+  }
+
+  Future<void> removeFavorite(int movieId) async {
+    await _service.removeFavorite(movieId);
+    loadFavorites();
   }
 }

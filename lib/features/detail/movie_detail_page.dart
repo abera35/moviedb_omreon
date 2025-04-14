@@ -4,28 +4,41 @@ import 'package:moviedb_omreon/core/bloc/movie_bloc.dart';
 import 'package:moviedb_omreon/core/bloc/movie_event.dart';
 import 'package:moviedb_omreon/core/bloc/movie_state.dart';
 import 'package:moviedb_omreon/core/favorites/favorite_cubit.dart';
+import 'package:moviedb_omreon/core/widgets/error_widget.dart';
+import 'package:moviedb_omreon/core/widgets/loading_widget.dart';
 import 'package:moviedb_omreon/models/movie_model.dart';
 import 'package:moviedb_omreon/models/movie_model_detail.dart';
 
-class MovieDetailPage extends StatelessWidget {
+class MovieDetailPage extends StatefulWidget {
   final String movieId;
 
   const MovieDetailPage({super.key, required this.movieId});
 
   @override
+  State<MovieDetailPage> createState() => _MovieDetailPageState();
+}
+
+class _MovieDetailPageState extends State<MovieDetailPage> {
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<MovieBloc>().add(FetchMovieDetail(widget.movieId));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    context.read<MovieBloc>().add(FetchMovieDetail(movieId));
 
     return Scaffold(
       appBar: AppBar(title: const Text("Movie Details")),
       body: BlocBuilder<MovieBloc, MovieState>(
         builder: (context, state) {
           if (state is MovieLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const CustomLoadingWidget();
           } else if (state is MovieDetailLoaded) {
             return _buildMovieDetail(state.movie);
           } else if (state is MovieError) {
-            return Center(child: Text(state.message));
+            return CustomErrorWidget(message: state.message);
           }
           return Container();
         },

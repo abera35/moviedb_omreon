@@ -2,16 +2,23 @@ import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DioClient {
-  final Dio _dio = Dio();
+  late final Dio _dio;
 
   DioClient() {
-    _dio.options.baseUrl = dotenv.env['TMDB_BASE_URL']!;
-    _dio.options.queryParameters = {
-      'api_key': dotenv.env['TMDB_API_KEY'],
-    };
-    _dio.options.headers = {
-      'Content-Type': 'application/json',
-    };
+    final baseUrl = dotenv.env['TMDB_BASE_URL'];
+    final apiKey = dotenv.env['TMDB_API_KEY'];
+
+    if (baseUrl == null || apiKey == null) {
+      throw Exception('TMDB_BASE_URL or TMDB_API_KEY is not set in .env');
+    }
+
+    _dio = Dio(
+      BaseOptions(
+        baseUrl: baseUrl,
+        queryParameters: {'api_key': apiKey},
+        headers: {'Content-Type': 'application/json'},
+      ),
+    );
   }
 
   Dio get client => _dio;
